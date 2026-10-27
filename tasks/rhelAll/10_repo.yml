@@ -3,20 +3,22 @@
   ansible.builtin.dnf:
     name: mysql*-community-release
     state: absent
+  when: not (mariadb_manage_only | bool)
 
 - name: disable mariadb appstream module
   ansible.builtin.lineinfile:
     path: /etc/dnf/modules.d/mariadb.module
     regexp: '^state=.*'
     line: state=disabled
-    create: no
-  failed_when: False
+    create: false
+  failed_when: false
+  when: not (mariadb_manage_only | bool)
 
 - name: create mariadb repo
   ansible.builtin.template:
     src: mariadb.repo.j2
     dest: /etc/yum.repos.d/mariadb.repo
-    owner: root 
-    group: root 
-    mode: 0644
-...
+    owner: root
+    group: root
+    mode: '0644'
+  when: not (mariadb_manage_only | bool)

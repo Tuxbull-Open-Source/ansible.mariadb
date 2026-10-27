@@ -3,7 +3,9 @@
 mariadb_version: 10.11
 
 mariadb_secure_installation: yes
-mariadb_root_password: 'ChangeMe.'
+# Required when installing or configuring MariaDB. Supply through Ansible Vault
+# or an approved secret manager; this role intentionally has no usable default.
+mariadb_root_password: ''
 mariadb_databases: []
 mariadb_users_create: []
 mariadb_users_remove: []

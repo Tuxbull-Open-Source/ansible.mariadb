@@ -1,52 +1,100 @@
-<a href="https://www.bitbull.ch"><img src="https://www.bitbull.ch/wiki/images/teamwork-trans.png" alt="Bitbull" width="250px"/></a>
+# Ansible MariaDB role
 
-# joe-speedboat.mariadb
-This Ansible Role installs & configures mariadb, as well as manages content (db & user).
-
-## Installation with ansible-galaxy:
-```bash
-ansible-galaxy install joe-speedboat.mariadb
-```
-
-## Install with git:
-```bash
-git clone https://github.com/joe-speedboat/ansible.mariadb.git /etc/ansible/roles/joe-speedboat.mariadb
-```
+Install and configure MariaDB, manage databases and users, and optionally
+schedule local logical backups on Enterprise Linux 8 and 9. The role uses the
+upstream MariaDB repository configured from `mariadb_version`.
 
 ## Requirements
-* Tested with Ansible 13.2.0 
-* OS Releases:
-  * Rocky9
 
-## Role dependencies
-This Ansilbe Role has no dependencies to other Ansilbe Roles
+- Ansible 2.11 or later.
+- Enterprise Linux 8 or 9 target with network access to the selected MariaDB
+  package repository.
+- Controller collection dependency:
 
-## Collection depencies
+  ```bash
+  ansible-galaxy collection install -r collections/requirements.yml
+  ```
 
-* community.mysql
-```bash
-ansible-galaxy collection install -r collections/requirements.yml
+- A root password supplied through Ansible Vault or another approved secret
+  manager. Do not put credentials in inventory, playbooks, or version control.
+
+## Role variables
+
+All defaults are in [`defaults/main.yml`](defaults/main.yml). Important values:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `mariadb_version` | `10.11` | MariaDB repository version. |
+| `mariadb_secure_installation` | `true` | Enable secure-initialization tasks. |
+| `mariadb_root_password` | empty | Required root password, supplied securely. |
+| `mariadb_databases` | `[]` | Databases to create or remove. |
+| `mariadb_users_create` | `[]` | Database users to create or update. Passwords are secrets. |
+| `mariadb_users_remove` | `[]` | Database users to remove. This is destructive. |
+| `mariadb_manage_only` | `false` | Skip repository and package installation when managing an existing server. |
+| `mariadb_update_only` | `false` | Restrict execution to the role's update path. |
+| `mariadb_backup_enable` | `true` | Enable the local logical-backup cron job. |
+| `mariadb_backup_dir` | `/srv/bkp/mariadb` | Local backup destination. |
+
+The default tuning values are examples, not capacity planning. Review and size
+buffer, cache, and file settings for the target workload before deployment.
+
+## Example playbook
+
+Keep real values in an encrypted variable file, not this repository:
+
+```yaml
+---
+- name: Install and configure MariaDB
+  hosts: database
+  become: true
+  vars_files:
+    - vault.yml
+  roles:
+    - role: tuxbull.mariadb
+      vars:
+        mariadb_root_password: "{{ vault_mariadb_root_password }}"
+        mariadb_databases:
+          - name: application
+            encoding: utf8
+            collation: utf8_general_ci
+        mariadb_users_create:
+          - name: application
+            password: "{{ vault_mariadb_application_password }}"
+            hosts:
+              - localhost
+            privs:
+              - "application.*:ALL"
 ```
 
-## Role Variables
-Variables are self speaking or documented in:   
-* `defaults/main.yml`
-* `vars/main.yml`
+Install the role from Galaxy after publication:
 
-The following variables can be overridden:
- * `mariadb_secure_installation`: Default: false. Similar to `mysql_secure_installation`
- * `mariadb_root_password`: Default: ''.
- * `mariadb_databases`: Default: {} . Dictionary with databases.
- * `mariadb_users_create`: Default: {}. Dictionary with user credentials.
- * `mariadb_users_remove`: Default: {}. Dictionary of users to remove.
+```bash
+ansible-galaxy role install tuxbull.mariadb
+```
 
-## Example Playbook
-Example playbooks for this role are located in ´test´ folder:
-* `test/playbook_mariadb_minimal.yml`: Minimal role for testing
-* `test/playbook_mariadb.yml`: Real life example
-* `test/playbook_mariadb_full.yml`: Full example with all possible vars.  
+For development from this repository, use a local role path named `mariadb`.
+
+## Operations and limitations
+
+The role manages the MariaDB service, `/etc/my.cnf`, root client access,
+databases, users, and a root-owned backup script plus cron entry. Confirm a
+backup completed and is restorable before relying on it. The role does not
+provide remote backup storage, backup restoration, automated secret rotation,
+replication configuration, or an uninstall workflow.
+
+Removing a database or user affects applications immediately. Back up the
+affected data, plan downtime where needed, and validate connected applications
+after every destructive change.
+
+## Validation
+
+Run YAML parsing, Ansible syntax validation, `git diff --check`, and the
+approved live-test workflow described in [`AGENTS.md`](AGENTS.md). Syntax
+checks alone do not prove package installation, database connectivity, backup
+restorability, or idempotency.
 
 ## License
-https://opensource.org/licenses/LGPL-3.0    
-Copyright (c) Chris Ruettimann <chris@bitbull.ch>
 
+[LGPL-3.0](https://opensource.org/licenses/LGPL-3.0)
+
+Copyright (c) Chris Ruettimann

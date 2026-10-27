@@ -1,22 +1,21 @@
 ---
 galaxy_info:
-  author: Chris Ruettimann
-  company: Bitbull Community
+  namespace: tuxbull
   role_name: mariadb
-#  namespace: joe-speedboat
-  description: installation and configuration of mariadb (mysql)
-  min_ansible_version: 2.11
-  license: GPLv3
+  author: Tuxbull-Open-Source
+  description: Install and configure MariaDB, databases, users, and local backups
+  license: LGPL-3.0-only
+  min_ansible_version: '2.11'
   platforms:
-  - name: EL
-    versions:
-    - 8
-    - 9
+    - name: EL
+      versions:
+        - '8'
+        - '9'
   galaxy_tags:
     - database
     - mariadb
     - mysql
+    - backup
+    - system
 
-# We don't use dependencies in here anymore
 dependencies: []
-...

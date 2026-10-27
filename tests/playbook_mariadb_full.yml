@@ -1,35 +1,8 @@
 ---
-# file: test/playbook_mariadb_full.yml
-- name: Install and configure MariaDB Server
-  hosts: alma9,alma8,rocky8,rocky9
+# Syntax-only test playbook. Use an explicitly approved EL 8 or 9 inventory for
+# live validation; do not run this playbook against localhost for deployment.
+- name: Validate MariaDB role syntax
+  hosts: all
+  gather_facts: false
   roles:
-    - role: joe-speedboat.mariadb
-      mariadb_secure_installation: yes    #default: no
-      mariadb_root_password: 'nevermind!' #default: ''
-      mariadb_databases:
-        - name: db_test                   #default: undefined
-          state: absent                   #default: present
-        - name: db1                       #default: undefined
-          collation: utf8_general_ci      #default: utf8_general_ci
-          encoding: utf8                  #default: utf8
-      mariadb_users_create:
-        - name: user1                     #default: undefined
-          password: krypt0n               #default: undefined
-          privs:
-            - "*.*:SELECT"                #default: *.*:USAGE
-            - "db1.*:INSERT"
-          append_privs: no
-      mariadb_users_remove:
-        - name: user2                     #default: undefined
-          host_all: yes                   #default: no
-        - name: user2                     #default: undefined
-          host: web1                      #default: localhost
-      db_mysqld_config:
-        - default-storage-engine=InnoDB
-        - max_allowed_packet=64M
-        - query_cache_size=32M
-        - innodb_log_file_size=256M
-        - datadir=/var/lib/mysql
-        - socket=/var/lib/mysql/mysql.sock
-        - symbolic-links=0
-...
+    - role: mariadb
