@@ -1,12 +1,23 @@
 ---
-- name: set root user password
+- name: Check configured root client access
+  ansible.builtin.command:
+    cmd: mariadb --defaults-file=/root/.my.cnf --execute=SELECT\ 1
+  changed_when: false
+  failed_when: false
+  register: mariadb_root_client_access
+  no_log: true
+  when: not mariadb_update_only
+
+- name: Set root user password when client access is unavailable
   ansible.builtin.shell: |
     mysql -uroot <<EOF
     SET PASSWORD FOR 'root'@'localhost' = PASSWORD('{{ mariadb_root_password }}');
     FLUSH PRIVILEGES;
     EOF
   no_log: true
-  when: not mariadb_update_only
+  when:
+    - not mariadb_update_only
+    - mariadb_root_client_access.rc != 0
 
 - name: Configure /root/.my.cnf
   ansible.builtin.template:
