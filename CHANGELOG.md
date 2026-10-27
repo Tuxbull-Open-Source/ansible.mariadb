@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Discover role tasks through Ansible's controller-side `role_path`, allowing a
+  role installed with `ANSIBLE_ROLES_PATH` or from Galaxy to execute its
+  OS-aware dispatcher.
+- Avoid repeated root-password changes when the managed root client
+  configuration already authenticates successfully.
+- Mark secure-initialization SQL as converged after it has applied its
+  idempotent secure state.
+
+### Verified
+
+- Live install and configuration on a disposable Rocky Linux 9.8 target.
+- MariaDB service, database/user reconciliation, logical backup output, and
+  scheduled backup entry.
+- Root-client configuration recovery, the secure-installation toggle, and a
+  final same-input convergence with no changes.
+
 ## v1.0.0 - 2026-10-27
 
 ### Security
