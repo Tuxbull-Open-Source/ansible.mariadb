@@ -1,0 +1,10 @@
+---
+- name: mariadb | validate required secret input
+  ansible.builtin.assert:
+    that:
+      - mariadb_root_password | string | length > 0
+    fail_msg: >-
+      Set mariadb_root_password through Ansible Vault or another approved
+      secret manager before running this role.
+  when: not (mariadb_update_only | bool)
+  no_log: true

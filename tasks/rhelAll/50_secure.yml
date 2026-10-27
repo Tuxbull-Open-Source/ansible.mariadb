@@ -9,6 +9,8 @@
     - DROP DATABASE IF EXISTS test;
     - DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
     - FLUSH PRIVILEGES;
-  when: not mariadb_update_only
+  when:
+    - mariadb_secure_installation | bool
+    - not mariadb_update_only
 
 ...
